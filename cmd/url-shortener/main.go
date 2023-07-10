@@ -4,8 +4,11 @@ import (
 	"os"
 
 	"github.com/devsendjin/url-shortener/internal/config"
+	mwLogger "github.com/devsendjin/url-shortener/internal/http-server/middleware/logger"
 	"github.com/devsendjin/url-shortener/internal/lib/logger/sl"
 	"github.com/devsendjin/url-shortener/internal/storage/sqlite"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/exp/slog"
 )
 
@@ -25,7 +28,13 @@ func main() {
 
 	_ = storage
 
-	// TODO: init router: chi, "chi render"
+	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(mwLogger.New(logger))
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
+
 	// TODO: run server
 }
 
